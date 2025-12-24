@@ -1,28 +1,21 @@
-/* =========================================
-   SCRIPT.JS
-   =========================================
-   This file takes the concert data and
-   turns it into the visible timeline.
-*/
-
-/* =========================================
-   BASIC REFERENCES
-   ========================================= */
+/* =========================================================
+   SCRIPT.JS — DENSE TIMELINE WITH MERGE BRIDGES
+   ========================================================= */
 
 const timeline = document.getElementById("timeline");
 const backToTopBtn = document.getElementById("back-to-top");
 
-/* =========================================
+/* =========================================================
    SORT CONCERTS BY DATE
-   ========================================= */
+   ========================================================= */
 
 const sortedConcerts = concerts.slice().sort((a, b) => {
   return new Date(a.date) - new Date(b.date);
 });
 
-/* =========================================
-   GROUP CONCERTS BY YEAR
-   ========================================= */
+/* =========================================================
+   GROUP BY YEAR
+   ========================================================= */
 
 const concertsByYear = {};
 
@@ -33,98 +26,144 @@ sortedConcerts.forEach(concert => {
   concertsByYear[concert.year].push(concert);
 });
 
-/* =========================================
-   BUILD THE TIMELINE
-   ========================================= */
+/* =========================================================
+   BUILD TIMELINE
+   ========================================================= */
 
 Object.keys(concertsByYear).forEach(year => {
 
-  /* Create year container */
   const yearBlock = document.createElement("div");
   yearBlock.className = "timeline-year";
 
-  /* Year label */
   const yearLabel = document.createElement("div");
   yearLabel.className = "year-label";
   yearLabel.textContent = year;
-
   yearBlock.appendChild(yearLabel);
 
-  /* Entries for this year */
   concertsByYear[year].forEach(concert => {
 
-    const entry = document.createElement("div");
-    entry.classList.add("timeline-entry");
-
-    if (concert.lane === "dad") {
-      entry.classList.add("entry-dad");
-    } else if (concert.lane === "miles") {
-      entry.classList.add("entry-miles");
+    if (concert.lane === "both") {
+      yearBlock.appendChild(buildMergeBridge(concert));
     } else {
-      entry.classList.add("entry-both");
+      yearBlock.appendChild(buildSingleEntry(concert));
     }
-
-    /* Node */
-    const node = document.createElement("div");
-    node.className = "entry-node";
-
-    /* Content container */
-    const content = document.createElement("div");
-    content.className = "entry-content";
-
-    /* Artist */
-    const artist = document.createElement("div");
-    artist.className = "entry-artist";
-    artist.textContent = concert.artist;
-
-    /* Venue */
-    const venue = document.createElement("div");
-    venue.className = "entry-venue";
-    venue.textContent = `${concert.venue}, ${concert.city}, ${concert.state}`;
-
-    content.appendChild(artist);
-    content.appendChild(venue);
-
-    /* Optional YouTube link */
-    if (concert.youtube && concert.youtube !== "") {
-      const link = document.createElement("a");
-      link.href = concert.youtube;
-      link.target = "_blank";
-      link.textContent = "YouTube";
-      link.style.display = "block";
-      link.style.fontSize = "0.8rem";
-      link.style.marginTop = "4px";
-
-      content.appendChild(link);
-    }
-
-    /* Assemble entry */
-    if (concert.lane === "dad") {
-      entry.appendChild(content);
-      entry.appendChild(node);
-    } else if (concert.lane === "miles") {
-      entry.appendChild(node);
-      entry.appendChild(content);
-    } else {
-      entry.appendChild(node);
-      entry.appendChild(content);
-    }
-
-    yearBlock.appendChild(entry);
 
   });
 
   timeline.appendChild(yearBlock);
-
 });
 
-/* =========================================
-   BACK TO TOP BUTTON
-   ========================================= */
+/* =========================================================
+   SINGLE ENTRY (LEFT OR RIGHT)
+   ========================================================= */
+
+function buildSingleEntry(concert) {
+
+  const entry = document.createElement("div");
+  entry.className = "timeline-entry";
+
+  entry.classList.add(
+    concert.lane === "dad" ? "entry-dad" : "entry-miles"
+  );
+
+  const node = document.createElement("div");
+  node.className = "entry-node";
+
+  const content = buildEntryContent(concert);
+
+  if (concert.lane === "dad") {
+    entry.appendChild(content);
+    entry.appendChild(node);
+  } else {
+    entry.appendChild(node);
+    entry.appendChild(content);
+  }
+
+  return entry;
+}
+
+/* =========================================================
+   MERGE BRIDGE (CENTER)
+   ========================================================= */
+
+function buildMergeBridge(concert) {
+
+  const entry = document.createElement("div");
+  entry.className = "timeline-entry entry-both";
+
+  /* Horizontal bridge container */
+  const bridge = document.createElement("div");
+  bridge.style.position = "relative";
+  bridge.style.display = "flex";
+  bridge.style.alignItems = "center";
+  bridge.style.justifyContent = "space-between";
+  bridge.style.width = "100%";
+  bridge.style.maxWidth = "800px";
+
+  /* Number of nodes along the bridge */
+  const NODE_COUNT = 5;
+  const nodes = [];
+
+  for (let i = 0; i < NODE_COUNT; i++) {
+    const n = document.createElement("div");
+    n.className = "entry-node";
+    nodes.push(n);
+    bridge.appendChild(n);
+  }
+
+  /* Content anchored to center node */
+  const content = buildEntryContent(concert);
+  content.style.position = "absolute";
+  content.style.left = "50%";
+  content.style.top = "24px";
+  content.style.transform = "translateX(-50%)";
+
+  entry.appendChild(bridge);
+  entry.appendChild(content);
+
+  return entry;
+}
+
+/* =========================================================
+   ENTRY CONTENT (TEXT STACK)
+   ========================================================= */
+
+function buildEntryContent(concert) {
+
+  const content = document.createElement("div");
+  content.className = "entry-content";
+
+  const artist = document.createElement("div");
+  artist.className = "entry-artist";
+  artist.textContent = concert.artist;
+
+  const venue = document.createElement("div");
+  venue.className = "entry-venue";
+  venue.textContent = `${concert.venue}, ${concert.city}, ${concert.state}`;
+
+  const meta = document.createElement("div");
+  meta.className = "entry-meta";
+  meta.textContent = concert.date.slice(5);
+
+  content.appendChild(artist);
+  content.appendChild(venue);
+  content.appendChild(meta);
+
+  if (concert.youtube) {
+    const link = document.createElement("a");
+    link.href = concert.youtube;
+    link.target = "_blank";
+    link.textContent = "YouTube";
+    content.appendChild(link);
+  }
+
+  return content;
+}
+
+/* =========================================================
+   BACK TO TOP
+   ========================================================= */
 
 backToTopBtn.addEventListener("click", () => {
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 });
