@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- =========================================
+       BASIC PAGE METADATA
+       ========================================= -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Lifetime of Live Music</title>
+
+  <!-- =========================================
+       CSS FILE
+       This controls how everything looks
+       ========================================= -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- =========================================
+       ENTRY HEADER SECTION
+       This is what you see first
+       ========================================= -->
+  <header id="entry-header">
+    <h1 class="site-title">A Lifetime of Live Music</h1>
+    <p class="site-subtitle">
+      A visual timeline of every concert, from the first to the ones still ahead
+    </p>
+  </header>
+
+
+  <!-- =========================================
+       TIMELINE WRAPPER
+       Everything scrolls inside this conceptually
+       ========================================= -->
+  <main id="timeline-wrapper">
+
+    <!-- 
+      The timeline itself will be built by JavaScript.
+      For now, this container is empty on purpose.
+    -->
+    <section id="timeline">
+      <!-- Timeline years and concert nodes will be injected here -->
+    </section>
+
+  </main>
+
+
+  <!-- =========================================
+       ENDING SECTION
+       Appears naturally at the bottom of the scroll
+       ========================================= -->
+  <footer id="timeline-ending">
+
+    <p class="more-shows">
+      More shows to come
+    </p>
+
+    <p class="signature">
+      Merry Christmas.<br>
+      Love, Miles.
+    </p>
+
+    <!-- Back to top button -->
+    <button id="back-to-top" aria-label="Back to top">
+      ↑ Back to top
+    </button>
+
+  </footer>
+
+
+  <!-- =========================================
+       DATA FILE
+       Contains all concerts (no logic, no styling)
+       ========================================= -->
+  <script src="data.js"></script>
+
+  <!-- =========================================
+       JAVASCRIPT FILE
+       Builds the timeline and behavior
+       ========================================= -->
+  <script src="script.js"></script>
+
+</body>
+</html>
