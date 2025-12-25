@@ -14,7 +14,7 @@
 const playlistLinks = {
   dad: "PASTE_DADS_PLAYLIST_URL_HERE",
   miles: "PASTE_MILES_PLAYLIST_URL_HERE",
-  both: "PASTE_SHARED_PLAYLIST_URL_HERE"
+  both: "https://youtube.com/playlist?list=PL4zbLivPf7yBsDU0HXlJ-gX4cWmicNO0Z&si=F07eVFvIPvE6lFOU"
 };
 
 const concerts = [
