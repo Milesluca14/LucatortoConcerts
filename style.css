@@ -1,5 +1,5 @@
 /* =========================================================
-   GLOBAL RESET + BASELINE
+   GLOBAL RESET AND BASELINE
    ========================================================= */
 
 * {
@@ -18,75 +18,114 @@ html, body {
 }
 
 /* =========================================================
-   ENTRY HEADER — DENSE, NOT AIRY
+   ENTRY HEADER WITH SIX IMAGE BLOCKS
+   Files to replace in index.html inline styles
+   hero_01.jpg through hero_06.jpg
    ========================================================= */
 
 #entry-header {
-  min-height: 65vh;
-  padding: 60px 24px 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  position: relative;
+  min-height: 72vh;
+  padding: 56px 24px 42px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+#hero-photo-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
+  padding: 18px;
+  z-index: 0;
+}
+
+.hero-photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(0.15) contrast(1.05);
+  opacity: 0.35;
+}
+
+#hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 35%, rgba(255,255,255,0.65), rgba(255,255,255,0.95));
+  z-index: 1;
+}
+
+#hero-text {
+  position: relative;
+  z-index: 2;
   text-align: center;
+  max-width: 900px;
 }
 
 .site-title {
-  font-size: 3.2rem;
-  font-weight: 600;
-  margin-bottom: 12px;
+  font-size: 3.25rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
 }
 
 .site-subtitle {
-  max-width: 680px;
+  max-width: 720px;
+  margin: 0 auto;
   font-size: 1.05rem;
   color: #555;
 }
 
 /* =========================================================
-   TIMELINE WRAPPER — NO DEAD ZONES
+   TIMELINE WRAPPER
+   Dense, no dead zones
    ========================================================= */
 
 #timeline-wrapper {
   position: relative;
   width: 100%;
-  padding: 40px 0 80px;
+  padding: 36px 0 84px;
 }
-
-/* =========================================================
-   TIMELINE CORE
-   ========================================================= */
 
 #timeline {
   position: relative;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 18px;
 }
 
 /* =========================================================
-   YEAR GROUP — LANDMARK, NOT SECTION
+   YEAR GROUP
+   Year is a landmark behind content, not a separate section
    ========================================================= */
 
 .timeline-year {
   position: relative;
-  padding: 40px 0 20px;
+  padding: 44px 0 18px;
 }
 
 .year-label {
   position: absolute;
-  top: 0;
+  top: 2px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 4.5rem;
-  font-weight: 600;
+  font-size: 4.7rem;
+  font-weight: 650;
   color: #ededed;
   pointer-events: none;
   z-index: 0;
+  user-select: none;
 }
 
 /* =========================================================
-   ENTRY ROW — DENSE RHYTHM
+   ENTRY ROWS
+   Dense rhythm
    ========================================================= */
 
 .timeline-entry {
@@ -98,10 +137,7 @@ html, body {
   z-index: 1;
 }
 
-/* =========================================================
-   LANES
-   ========================================================= */
-
+/* Lanes */
 .entry-dad {
   justify-content: flex-end;
   padding-right: 52%;
@@ -112,20 +148,24 @@ html, body {
   padding-left: 52%;
 }
 
+/* Bridge row, center must be empty except the bridge */
 .entry-both {
   justify-content: center;
+  min-height: 36px;
 }
 
 /* =========================================================
-   VERTICAL LINES — CONTINUOUS OBJECT
+   VERTICAL LINES
+   Only left and right lanes have vertical lines
+   Center has none
    ========================================================= */
 
 .entry-dad::before,
 .entry-miles::before {
   content: "";
   position: absolute;
-  top: -40px;
-  bottom: -40px;
+  top: -42px;
+  bottom: -42px;
   width: 2px;
   background: #000;
 }
@@ -139,20 +179,7 @@ html, body {
 }
 
 /* =========================================================
-   HORIZONTAL BRIDGE — MERGE MOMENT
-   ========================================================= */
-
-.entry-both::before {
-  content: "";
-  position: absolute;
-  left: 18%;
-  right: 18%;
-  height: 2px;
-  background: #000;
-}
-
-/* =========================================================
-   NODE — PHYSICAL WEIGHT
+   NODE
    ========================================================= */
 
 .entry-node {
@@ -164,11 +191,12 @@ html, body {
 }
 
 /* =========================================================
-   ENTRY CONTENT — TIGHT STACK
+   ENTRY CONTENT
+   Tight stack, professional density
    ========================================================= */
 
 .entry-content {
-  max-width: 380px;
+  max-width: 420px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -184,22 +212,19 @@ html, body {
   margin-left: 14px;
 }
 
+/* Bridge content is centered and should not imply a center lane */
 .entry-both .entry-content {
   text-align: center;
-  margin: 0 16px;
+  max-width: 520px;
 }
-
-/* =========================================================
-   TEXT HIERARCHY
-   ========================================================= */
 
 .entry-artist {
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 650;
 }
 
 .entry-venue {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: #444;
 }
 
@@ -209,47 +234,77 @@ html, body {
 }
 
 /* =========================================================
-   YOUTUBE LINK — INLINE, NOT CALLOUT
-   ========================================================= */
-
-.entry-content a {
-  font-size: 0.75rem;
-  color: #000;
-  text-decoration: underline;
-  margin-top: 2px;
-}
-
-/* =========================================================
-   ENDING — PRESENT BUT NOT SEPARATE
+   ENDING
+   Includes playlists plus closing lines
    ========================================================= */
 
 #timeline-ending {
-  padding: 120px 24px 80px;
+  padding: 120px 24px 86px;
   text-align: center;
 }
 
 .more-shows {
-  font-size: 1rem;
-  margin-bottom: 28px;
+  font-size: 1.02rem;
+  margin-bottom: 26px;
   color: #333;
 }
 
 .signature {
   font-size: 1.4rem;
   line-height: 1.5;
-  margin-bottom: 40px;
+  margin-bottom: 34px;
 }
 
-/* =========================================================
-   BACK TO TOP — UTILITY, NOT UI
-   ========================================================= */
+/* Playlist block */
+#playlist-links {
+  max-width: 900px;
+  margin: 0 auto 48px;
+  padding: 22px 18px;
+  border: 1px solid #e6e6e6;
+  border-radius: 18px;
+  background: #fafafa;
+}
 
+.playlist-title {
+  font-size: 1.05rem;
+  font-weight: 650;
+  margin-bottom: 14px;
+  color: #222;
+}
+
+.playlist-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.playlist-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid #000;
+  color: #000;
+  text-decoration: none;
+  font-size: 0.9rem;
+  background: #fff;
+}
+
+.playlist-button:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* Back to top */
 #back-to-top {
   background: none;
   border: 1px solid #000;
-  padding: 8px 18px;
-  font-size: 0.85rem;
+  padding: 9px 18px;
+  font-size: 0.86rem;
   cursor: pointer;
+  border-radius: 10px;
 }
 
 #back-to-top:hover {
@@ -258,10 +313,47 @@ html, body {
 }
 
 /* =========================================================
-   MOBILE — STILL DENSE
+   RESPONSIVE
+   Keep density but prevent collisions
    ========================================================= */
 
+@media (max-width: 920px) {
+  .year-label {
+    font-size: 3.9rem;
+  }
+
+  .entry-dad {
+    padding-right: 50%;
+  }
+
+  .entry-miles {
+    padding-left: 50%;
+  }
+}
+
 @media (max-width: 768px) {
+  #entry-header {
+    min-height: 70vh;
+    padding: 48px 18px 34px;
+  }
+
+  #hero-photo-grid {
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .hero-photo {
+    border-radius: 14px;
+    opacity: 0.28;
+  }
+
+  .site-title {
+    font-size: 2.55rem;
+  }
+
+  .site-subtitle {
+    font-size: 1rem;
+  }
 
   .entry-dad,
   .entry-miles {
@@ -277,9 +369,29 @@ html, body {
   .entry-content {
     text-align: center !important;
     margin: 0 !important;
+    max-width: 520px;
   }
 
   .year-label {
-    font-size: 3.2rem;
+    font-size: 3.1rem;
+  }
+
+  #playlist-links {
+    padding: 18px 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .site-title {
+    font-size: 2.2rem;
+  }
+
+  .year-label {
+    font-size: 2.7rem;
+  }
+
+  .playlist-button {
+    width: 100%;
+    max-width: 320px;
   }
 }
