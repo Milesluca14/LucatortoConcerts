@@ -1,27 +1,16 @@
 /* =========================================================
    SCRIPT.JS
    Two lane lines only at 20 percent and 80 percent
-   No center vertical line
-   Bridge only for shared shows
-   No per entry YouTube links
-   Playlist links only at the bottom
+   Bridge has only two outer segments
+   No center dot and no middle segments
    ========================================================= */
 
 const timeline = document.getElementById("timeline");
 const entryHeader = document.getElementById("entry-header");
 const backToTopBtn = document.getElementById("back-to-top");
 
-/* =========================================================
-   Lane geometry
-   Your requested positions
-   ========================================================= */
-
 const LANE_LEFT_PCT = 20;
 const LANE_RIGHT_PCT = 80;
-
-/* =========================================================
-   Utility
-   ========================================================= */
 
 function safeText(value) {
   return (value === undefined || value === null) ? "" : String(value).trim();
@@ -43,13 +32,8 @@ function formatMonthDay(dateStr) {
   return dateStr.slice(5);
 }
 
-/* =========================================================
-   Sort and group by year
-   ========================================================= */
-
-const sortedConcerts = concerts.slice().sort((a, b) => {
-  return new Date(a.date) - new Date(b.date);
-});
+/* Sort and group */
+const sortedConcerts = concerts.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
 
 const concertsByYear = {};
 sortedConcerts.forEach(concert => {
@@ -57,19 +41,12 @@ sortedConcerts.forEach(concert => {
   concertsByYear[concert.year].push(concert);
 });
 
-const yearsSorted = Object.keys(concertsByYear)
-  .map(y => parseInt(y, 10))
-  .sort((a, b) => a - b);
+const yearsSorted = Object.keys(concertsByYear).map(y => parseInt(y, 10)).sort((a, b) => a - b);
 
-/* =========================================================
-   Build the two global lane lines
-   This is the only place vertical lines are created
-   ========================================================= */
-
+/* Two global lane lines */
 timeline.style.position = "relative";
 
 const laneLines = document.createElement("div");
-laneLines.id = "lane-lines";
 laneLines.style.position = "absolute";
 laneLines.style.top = "0";
 laneLines.style.left = "0";
@@ -98,10 +75,7 @@ laneLines.appendChild(leftLine);
 laneLines.appendChild(rightLine);
 timeline.appendChild(laneLines);
 
-/* =========================================================
-   Build timeline DOM
-   ========================================================= */
-
+/* Build */
 yearsSorted.forEach(year => {
   const yearBlock = document.createElement("div");
   yearBlock.className = "timeline-year";
@@ -113,24 +87,13 @@ yearsSorted.forEach(year => {
 
   concertsByYear[year].forEach(concert => {
     const lane = safeText(concert.lane);
-
-    if (lane === "both") {
-      yearBlock.appendChild(buildBridge(concert));
-    } else {
-      yearBlock.appendChild(buildLaneEntry(concert));
-    }
+    yearBlock.appendChild(lane === "both" ? buildBridge(concert) : buildLaneEntry(concert));
   });
 
   timeline.appendChild(yearBlock);
 });
 
-/* =========================================================
-   Normal entry on left or right lane
-   Dad text goes to the left of the right line
-   Miles text goes to the right of the left line
-   This prevents any line from crossing text
-   ========================================================= */
-
+/* Normal entries */
 function buildLaneEntry(concert) {
   const lane = safeText(concert.lane);
 
@@ -170,15 +133,11 @@ function buildLaneEntry(concert) {
 
   if (lane === "dad") {
     node.style.left = `${LANE_RIGHT_PCT}%`;
-
-    /* Place text left of the right lane line */
     content.style.right = `calc(${100 - LANE_RIGHT_PCT}% + 18px)`;
     content.style.textAlign = "right";
     content.style.maxWidth = "520px";
   } else {
     node.style.left = `${LANE_LEFT_PCT}%`;
-
-    /* Place text right of the left lane line */
     content.style.left = `calc(${LANE_LEFT_PCT}% + 18px)`;
     content.style.textAlign = "left";
     content.style.maxWidth = "520px";
@@ -186,17 +145,10 @@ function buildLaneEntry(concert) {
 
   row.appendChild(node);
   row.appendChild(content);
-
   return row;
 }
 
-/* =========================================================
-   Bridge entry
-   The center has nothing except this bridge line
-   Bridge goes from left lane line to right lane line
-   Bridge label sits above the bridge
-   ========================================================= */
-
+/* Bridge with two outer segments only */
 function buildBridge(concert) {
   const row = document.createElement("div");
   row.className = "timeline-entry";
@@ -204,45 +156,77 @@ function buildBridge(concert) {
   row.style.zIndex = "1";
   row.style.minHeight = "86px";
 
-  const bridgeLine = document.createElement("div");
-  bridgeLine.style.position = "absolute";
-  bridgeLine.style.top = "56%";
-  bridgeLine.style.left = `${LANE_LEFT_PCT}%`;
-  bridgeLine.style.width = `${LANE_RIGHT_PCT - LANE_LEFT_PCT}%`;
-  bridgeLine.style.height = "2px";
-  bridgeLine.style.background = "#000";
-  bridgeLine.style.transform = "translateY(-50%)";
+  /* These two control where dot 2 and dot 4 live along the bridge span */
+  const INNER_LEFT = 25;   /* percent of bridge width from left endpoint */
+  const INNER_RIGHT = 75;  /* percent of bridge width from left endpoint */
 
-  const leftNode = document.createElement("div");
-  leftNode.className = "entry-node";
-  leftNode.style.position = "absolute";
-  leftNode.style.left = "0";
-  leftNode.style.top = "50%";
-  leftNode.style.transform = "translate(-50%, -50%)";
+  const bridge = document.createElement("div");
+  bridge.style.position = "absolute";
+  bridge.style.top = "56%";
+  bridge.style.left = `${LANE_LEFT_PCT}%`;
+  bridge.style.width = `${LANE_RIGHT_PCT - LANE_LEFT_PCT}%`;
+  bridge.style.height = "2px";
+  bridge.style.transform = "translateY(-50%)";
 
-  const rightNode = document.createElement("div");
-  rightNode.className = "entry-node";
-  rightNode.style.position = "absolute";
-  rightNode.style.left = "100%";
-  rightNode.style.top = "50%";
-  rightNode.style.transform = "translate(-50%, -50%)";
+  /* Left segment: dot 1 to dot 2 */
+  const leftSeg = document.createElement("div");
+  leftSeg.style.position = "absolute";
+  leftSeg.style.left = "0";
+  leftSeg.style.top = "0";
+  leftSeg.style.height = "2px";
+  leftSeg.style.width = `${INNER_LEFT}%`;
+  leftSeg.style.background = "#000";
 
-  bridgeLine.appendChild(leftNode);
-  bridgeLine.appendChild(rightNode);
+  /* Right segment: dot 4 to dot 5 */
+  const rightSeg = document.createElement("div");
+  rightSeg.style.position = "absolute";
+  rightSeg.style.left = `${INNER_RIGHT}%`;
+  rightSeg.style.top = "0";
+  rightSeg.style.height = "2px";
+  rightSeg.style.width = `${100 - INNER_RIGHT}%`;
+  rightSeg.style.background = "#000";
 
-  /* Optional mid nodes on the bridge for density, still not a center vertical line */
-  const midCount = 3;
-  for (let i = 1; i <= midCount; i++) {
-    const mid = document.createElement("div");
-    mid.className = "entry-node";
-    mid.style.position = "absolute";
-    mid.style.left = `${(i * 100) / (midCount + 1)}%`;
-    mid.style.top = "50%";
-    mid.style.transform = "translate(-50%, -50%)";
-    mid.style.opacity = "1";
-    bridgeLine.appendChild(mid);
-  }
+  bridge.appendChild(leftSeg);
+  bridge.appendChild(rightSeg);
 
+  /* Dot 1 at left lane endpoint */
+  const dot1 = document.createElement("div");
+  dot1.className = "entry-node";
+  dot1.style.position = "absolute";
+  dot1.style.left = "0";
+  dot1.style.top = "50%";
+  dot1.style.transform = "translate(-50%, -50%)";
+
+  /* Dot 2 at inner left */
+  const dot2 = document.createElement("div");
+  dot2.className = "entry-node";
+  dot2.style.position = "absolute";
+  dot2.style.left = `${INNER_LEFT}%`;
+  dot2.style.top = "50%";
+  dot2.style.transform = "translate(-50%, -50%)";
+
+  /* Dot 4 at inner right */
+  const dot4 = document.createElement("div");
+  dot4.className = "entry-node";
+  dot4.style.position = "absolute";
+  dot4.style.left = `${INNER_RIGHT}%`;
+  dot4.style.top = "50%";
+  dot4.style.transform = "translate(-50%, -50%)";
+
+  /* Dot 5 at right lane endpoint */
+  const dot5 = document.createElement("div");
+  dot5.className = "entry-node";
+  dot5.style.position = "absolute";
+  dot5.style.left = "100%";
+  dot5.style.top = "50%";
+  dot5.style.transform = "translate(-50%, -50%)";
+
+  bridge.appendChild(dot1);
+  bridge.appendChild(dot2);
+  bridge.appendChild(dot4);
+  bridge.appendChild(dot5);
+
+  /* Label sits above the empty gap, never on top of a line */
   const content = document.createElement("div");
   content.className = "entry-content bridge-label";
   content.style.position = "absolute";
@@ -267,18 +251,13 @@ function buildBridge(concert) {
   content.appendChild(venue);
   content.appendChild(meta);
 
-  row.appendChild(bridgeLine);
+  row.appendChild(bridge);
   row.appendChild(content);
 
   return row;
 }
 
-/* =========================================================
-   Header behavior
-   Fade out after scroll begins
-   Return only when at top
-   ========================================================= */
-
+/* Header fade */
 function updateHeaderVisibility() {
   if (!entryHeader) return;
 
@@ -297,10 +276,7 @@ entryHeader.style.transition = "opacity 250ms ease, transform 250ms ease";
 updateHeaderVisibility();
 window.addEventListener("scroll", updateHeaderVisibility, { passive: true });
 
-/* =========================================================
-   Fade in on scroll
-   ========================================================= */
-
+/* Fade in on scroll */
 const animated = Array.from(document.querySelectorAll(".timeline-entry, .timeline-year"));
 animated.forEach(el => {
   el.style.opacity = "0";
@@ -320,10 +296,7 @@ const observer = new IntersectionObserver((entries) => {
 
 animated.forEach(el => observer.observe(el));
 
-/* =========================================================
-   Apply playlist links to the bottom buttons
-   ========================================================= */
-
+/* Playlist links */
 function applyPlaylistLinks() {
   if (!window.playlistLinks) return;
 
@@ -345,10 +318,7 @@ function applyPlaylistLinks() {
 
 applyPlaylistLinks();
 
-/* =========================================================
-   Back to top
-   ========================================================= */
-
+/* Back to top */
 backToTopBtn.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
