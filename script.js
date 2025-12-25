@@ -1,5 +1,5 @@
 /* =========================================================
-   SCRIPT.JS — DENSE TIMELINE WITH MERGE BRIDGES
+   SCRIPT.JS — TWO TIMELINES + BRIDGE ONLY
    ========================================================= */
 
 const timeline = document.getElementById("timeline");
@@ -43,7 +43,7 @@ Object.keys(concertsByYear).forEach(year => {
   concertsByYear[year].forEach(concert => {
 
     if (concert.lane === "both") {
-      yearBlock.appendChild(buildMergeBridge(concert));
+      yearBlock.appendChild(buildBridge(concert));
     } else {
       yearBlock.appendChild(buildSingleEntry(concert));
     }
@@ -54,7 +54,7 @@ Object.keys(concertsByYear).forEach(year => {
 });
 
 /* =========================================================
-   SINGLE ENTRY (LEFT OR RIGHT)
+   SINGLE ENTRY (LEFT OR RIGHT ONLY)
    ========================================================= */
 
 function buildSingleEntry(concert) {
@@ -62,16 +62,15 @@ function buildSingleEntry(concert) {
   const entry = document.createElement("div");
   entry.className = "timeline-entry";
 
-  entry.classList.add(
-    concert.lane === "dad" ? "entry-dad" : "entry-miles"
-  );
+  const isDad = concert.lane === "dad";
+  entry.classList.add(isDad ? "entry-dad" : "entry-miles");
 
   const node = document.createElement("div");
   node.className = "entry-node";
 
   const content = buildEntryContent(concert);
 
-  if (concert.lane === "dad") {
+  if (isDad) {
     entry.appendChild(content);
     entry.appendChild(node);
   } else {
@@ -83,49 +82,54 @@ function buildSingleEntry(concert) {
 }
 
 /* =========================================================
-   MERGE BRIDGE (CENTER)
+   BRIDGE — CONNECTS LEFT AND RIGHT ONLY
    ========================================================= */
 
-function buildMergeBridge(concert) {
+function buildBridge(concert) {
 
   const entry = document.createElement("div");
   entry.className = "timeline-entry entry-both";
 
-  /* Horizontal bridge container */
-  const bridge = document.createElement("div");
-  bridge.style.position = "relative";
-  bridge.style.display = "flex";
-  bridge.style.alignItems = "center";
-  bridge.style.justifyContent = "space-between";
-  bridge.style.width = "100%";
-  bridge.style.maxWidth = "800px";
+  /* Horizontal bridge line */
+  const bridgeLine = document.createElement("div");
+  bridgeLine.style.position = "relative";
+  bridgeLine.style.width = "100%";
+  bridgeLine.style.height = "2px";
+  bridgeLine.style.background = "#000";
 
-  /* Number of nodes along the bridge */
-  const NODE_COUNT = 5;
-  const nodes = [];
+  /* Left endpoint (Miles side) */
+  const leftNode = document.createElement("div");
+  leftNode.className = "entry-node";
+  leftNode.style.position = "absolute";
+  leftNode.style.left = "18%";
+  leftNode.style.top = "-5px";
 
-  for (let i = 0; i < NODE_COUNT; i++) {
-    const n = document.createElement("div");
-    n.className = "entry-node";
-    nodes.push(n);
-    bridge.appendChild(n);
-  }
+  /* Right endpoint (Dad side) */
+  const rightNode = document.createElement("div");
+  rightNode.className = "entry-node";
+  rightNode.style.position = "absolute";
+  rightNode.style.right = "18%";
+  rightNode.style.top = "-5px";
 
-  /* Content anchored to center node */
+  bridgeLine.appendChild(leftNode);
+  bridgeLine.appendChild(rightNode);
+
+  /* Content centered ABOVE the bridge */
   const content = buildEntryContent(concert);
   content.style.position = "absolute";
   content.style.left = "50%";
-  content.style.top = "24px";
+  content.style.top = "-48px";
   content.style.transform = "translateX(-50%)";
+  content.style.textAlign = "center";
 
-  entry.appendChild(bridge);
+  entry.appendChild(bridgeLine);
   entry.appendChild(content);
 
   return entry;
 }
 
 /* =========================================================
-   ENTRY CONTENT (TEXT STACK)
+   ENTRY CONTENT
    ========================================================= */
 
 function buildEntryContent(concert) {
