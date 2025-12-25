@@ -1,11 +1,10 @@
 /* =========================================================
    SCRIPT.JS
-   Two vertical timelines plus bridges only
-   Right lane is Dad
-   Left lane is Miles
-   Center is empty except bridges
-   Per entry YouTube is not rendered
-   Playlists are linked at the bottom only
+   Two lane lines only at 20 percent and 80 percent
+   No center vertical line
+   Bridge only for shared shows
+   No per entry YouTube links
+   Playlist links only at the bottom
    ========================================================= */
 
 const timeline = document.getElementById("timeline");
@@ -14,15 +13,14 @@ const backToTopBtn = document.getElementById("back-to-top");
 
 /* =========================================================
    Lane geometry
-   These positions control where the two vertical lines live
-   Adjust these two values later if you want wider or tighter lanes
+   Your requested positions
    ========================================================= */
 
-const LANE_LEFT_PCT = 30;
-const LANE_RIGHT_PCT = 70;
+const LANE_LEFT_PCT = 20;
+const LANE_RIGHT_PCT = 80;
 
 /* =========================================================
-   Utility formatting
+   Utility
    ========================================================= */
 
 function safeText(value) {
@@ -34,10 +32,10 @@ function formatLocation(concert) {
   const city = safeText(concert.city);
   const state = safeText(concert.state);
 
-  if (city && state) return `${venue}, ${city}, ${state}`;
-  if (city && !state) return `${venue}, ${city}`;
-  if (!city && state) return `${venue}, ${state}`;
-  return venue;
+  if (venue && city && state) return `${venue}, ${city}, ${state}`;
+  if (venue && city) return `${venue}, ${city}`;
+  if (venue && state) return `${venue}, ${state}`;
+  return venue || "";
 }
 
 function formatMonthDay(dateStr) {
@@ -64,9 +62,11 @@ const yearsSorted = Object.keys(concertsByYear)
   .sort((a, b) => a - b);
 
 /* =========================================================
-   Global lane lines
-   These ensure true vertical continuity including across bridges
+   Build the two global lane lines
+   This is the only place vertical lines are created
    ========================================================= */
+
+timeline.style.position = "relative";
 
 const laneLines = document.createElement("div");
 laneLines.id = "lane-lines";
@@ -79,7 +79,6 @@ laneLines.style.pointerEvents = "none";
 laneLines.style.zIndex = "0";
 
 const leftLine = document.createElement("div");
-leftLine.id = "lane-left-line";
 leftLine.style.position = "absolute";
 leftLine.style.top = "0";
 leftLine.style.bottom = "0";
@@ -88,7 +87,6 @@ leftLine.style.width = "2px";
 leftLine.style.background = "#000";
 
 const rightLine = document.createElement("div");
-rightLine.id = "lane-right-line";
 rightLine.style.position = "absolute";
 rightLine.style.top = "0";
 rightLine.style.bottom = "0";
@@ -98,7 +96,6 @@ rightLine.style.background = "#000";
 
 laneLines.appendChild(leftLine);
 laneLines.appendChild(rightLine);
-timeline.style.position = "relative";
 timeline.appendChild(laneLines);
 
 /* =========================================================
@@ -128,7 +125,10 @@ yearsSorted.forEach(year => {
 });
 
 /* =========================================================
-   Build a normal entry on left or right lane
+   Normal entry on left or right lane
+   Dad text goes to the left of the right line
+   Miles text goes to the right of the left line
+   This prevents any line from crossing text
    ========================================================= */
 
 function buildLaneEntry(concert) {
@@ -138,8 +138,7 @@ function buildLaneEntry(concert) {
   row.className = "timeline-entry";
   row.style.position = "relative";
   row.style.zIndex = "1";
-  row.style.display = "block";
-  row.style.minHeight = "22px";
+  row.style.minHeight = "44px";
 
   const node = document.createElement("div");
   node.className = "entry-node";
@@ -149,7 +148,9 @@ function buildLaneEntry(concert) {
 
   const content = document.createElement("div");
   content.className = "entry-content";
-  content.style.position = "relative";
+  content.style.position = "absolute";
+  content.style.top = "50%";
+  content.style.transform = "translateY(-50%)";
 
   const artist = document.createElement("div");
   artist.className = "entry-artist";
@@ -170,16 +171,17 @@ function buildLaneEntry(concert) {
   if (lane === "dad") {
     node.style.left = `${LANE_RIGHT_PCT}%`;
 
-    content.style.marginLeft = `calc(${LANE_RIGHT_PCT}% + 16px)`;
-    content.style.maxWidth = "420px";
-    content.style.textAlign = "left";
-
+    /* Place text left of the right lane line */
+    content.style.right = `calc(${100 - LANE_RIGHT_PCT}% + 18px)`;
+    content.style.textAlign = "right";
+    content.style.maxWidth = "520px";
   } else {
     node.style.left = `${LANE_LEFT_PCT}%`;
 
-    content.style.marginRight = `calc(100% - ${LANE_LEFT_PCT}% + 16px)`;
-    content.style.maxWidth = "420px";
-    content.style.textAlign = "right";
+    /* Place text right of the left lane line */
+    content.style.left = `calc(${LANE_LEFT_PCT}% + 18px)`;
+    content.style.textAlign = "left";
+    content.style.maxWidth = "520px";
   }
 
   row.appendChild(node);
@@ -189,9 +191,10 @@ function buildLaneEntry(concert) {
 }
 
 /* =========================================================
-   Build a bridge entry
-   Center is empty except this bridge line
-   Endpoints touch the two lane lines
+   Bridge entry
+   The center has nothing except this bridge line
+   Bridge goes from left lane line to right lane line
+   Bridge label sits above the bridge
    ========================================================= */
 
 function buildBridge(concert) {
@@ -199,12 +202,11 @@ function buildBridge(concert) {
   row.className = "timeline-entry";
   row.style.position = "relative";
   row.style.zIndex = "1";
-  row.style.display = "block";
-  row.style.minHeight = "56px";
+  row.style.minHeight = "86px";
 
   const bridgeLine = document.createElement("div");
   bridgeLine.style.position = "absolute";
-  bridgeLine.style.top = "50%";
+  bridgeLine.style.top = "56%";
   bridgeLine.style.left = `${LANE_LEFT_PCT}%`;
   bridgeLine.style.width = `${LANE_RIGHT_PCT - LANE_LEFT_PCT}%`;
   bridgeLine.style.height = "2px";
@@ -228,6 +230,7 @@ function buildBridge(concert) {
   bridgeLine.appendChild(leftNode);
   bridgeLine.appendChild(rightNode);
 
+  /* Optional mid nodes on the bridge for density, still not a center vertical line */
   const midCount = 3;
   for (let i = 1; i <= midCount; i++) {
     const mid = document.createElement("div");
@@ -241,13 +244,12 @@ function buildBridge(concert) {
   }
 
   const content = document.createElement("div");
-  content.className = "entry-content";
+  content.className = "entry-content bridge-label";
   content.style.position = "absolute";
   content.style.left = "50%";
   content.style.top = "0";
   content.style.transform = "translateX(-50%)";
-  content.style.textAlign = "center";
-  content.style.maxWidth = "560px";
+  content.style.maxWidth = "720px";
 
   const artist = document.createElement("div");
   artist.className = "entry-artist";
@@ -274,7 +276,7 @@ function buildBridge(concert) {
 /* =========================================================
    Header behavior
    Fade out after scroll begins
-   Return only when back at top
+   Return only when at top
    ========================================================= */
 
 function updateHeaderVisibility() {
@@ -296,7 +298,7 @@ updateHeaderVisibility();
 window.addEventListener("scroll", updateHeaderVisibility, { passive: true });
 
 /* =========================================================
-   Fade in entries on scroll
+   Fade in on scroll
    ========================================================= */
 
 const animated = Array.from(document.querySelectorAll(".timeline-entry, .timeline-year"));
@@ -319,8 +321,7 @@ const observer = new IntersectionObserver((entries) => {
 animated.forEach(el => observer.observe(el));
 
 /* =========================================================
-   Bottom playlist links
-   Use playlistLinks from data.js and fill the footer buttons
+   Apply playlist links to the bottom buttons
    ========================================================= */
 
 function applyPlaylistLinks() {
