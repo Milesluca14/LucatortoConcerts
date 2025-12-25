@@ -1,8 +1,9 @@
 /* =========================================================
    SCRIPT.JS
    Two lane lines only at 20 percent and 80 percent
-   Bridge has only two outer segments
-   No center dot and no middle segments
+   Bridge segments only on the outside
+   Adds year library button grid before the first year
+   No visible load in animations
    ========================================================= */
 
 const timeline = document.getElementById("timeline");
@@ -32,7 +33,10 @@ function formatMonthDay(dateStr) {
   return dateStr.slice(5);
 }
 
-/* Sort and group */
+/* =========================================================
+   Sort and group
+   ========================================================= */
+
 const sortedConcerts = concerts.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
 
 const concertsByYear = {};
@@ -41,9 +45,14 @@ sortedConcerts.forEach(concert => {
   concertsByYear[concert.year].push(concert);
 });
 
-const yearsSorted = Object.keys(concertsByYear).map(y => parseInt(y, 10)).sort((a, b) => a - b);
+const yearsWithData = Object.keys(concertsByYear)
+  .map(y => parseInt(y, 10))
+  .sort((a, b) => a - b);
 
-/* Two global lane lines */
+/* =========================================================
+   Global lane lines, only two
+   ========================================================= */
+
 timeline.style.position = "relative";
 
 const laneLines = document.createElement("div");
@@ -75,10 +84,28 @@ laneLines.appendChild(leftLine);
 laneLines.appendChild(rightLine);
 timeline.appendChild(laneLines);
 
-/* Build */
-yearsSorted.forEach(year => {
+/* =========================================================
+   Insert year library section before timeline content
+   Buttons from 1979 to 2025, evenly laid out
+   If a year has no data, button is disabled
+   ========================================================= */
+
+insertYearLibrary({
+  startYear: 1979,
+  endYear: 2025,
+  yearsWithData
+});
+
+/* =========================================================
+   Build timeline DOM with year anchors
+   ========================================================= */
+
+yearsWithData.forEach(year => {
   const yearBlock = document.createElement("div");
   yearBlock.className = "timeline-year";
+
+  /* Anchor id for scroll */
+  yearBlock.id = `year-${year}`;
 
   const yearLabel = document.createElement("div");
   yearLabel.className = "year-label";
@@ -93,7 +120,12 @@ yearsSorted.forEach(year => {
   timeline.appendChild(yearBlock);
 });
 
-/* Normal entries */
+/* =========================================================
+   Lane entries
+   Dad text left of right line
+   Miles text right of left line
+   ========================================================= */
+
 function buildLaneEntry(concert) {
   const lane = safeText(concert.lane);
 
@@ -101,7 +133,7 @@ function buildLaneEntry(concert) {
   row.className = "timeline-entry";
   row.style.position = "relative";
   row.style.zIndex = "1";
-  row.style.minHeight = "44px";
+  row.style.minHeight = "56px"; /* spacing control */
 
   const node = document.createElement("div");
   node.className = "entry-node";
@@ -135,12 +167,12 @@ function buildLaneEntry(concert) {
     node.style.left = `${LANE_RIGHT_PCT}%`;
     content.style.right = `calc(${100 - LANE_RIGHT_PCT}% + 18px)`;
     content.style.textAlign = "right";
-    content.style.maxWidth = "520px";
+    content.style.maxWidth = "560px";
   } else {
     node.style.left = `${LANE_LEFT_PCT}%`;
     content.style.left = `calc(${LANE_LEFT_PCT}% + 18px)`;
     content.style.textAlign = "left";
-    content.style.maxWidth = "520px";
+    content.style.maxWidth = "560px";
   }
 
   row.appendChild(node);
@@ -148,27 +180,31 @@ function buildLaneEntry(concert) {
   return row;
 }
 
-/* Bridge with two outer segments only */
+/* =========================================================
+   Bridge
+   Keep dots 1, 2, 4, 5
+   Keep only line 1 to 2 and line 4 to 5
+   Remove the middle entirely
+   ========================================================= */
+
 function buildBridge(concert) {
   const row = document.createElement("div");
   row.className = "timeline-entry";
   row.style.position = "relative";
   row.style.zIndex = "1";
-  row.style.minHeight = "86px";
+  row.style.minHeight = "98px";
 
-  /* These two control where dot 2 and dot 4 live along the bridge span */
-  const INNER_LEFT = 25;   /* percent of bridge width from left endpoint */
-  const INNER_RIGHT = 75;  /* percent of bridge width from left endpoint */
+  const INNER_LEFT = 25;
+  const INNER_RIGHT = 75;
 
   const bridge = document.createElement("div");
   bridge.style.position = "absolute";
-  bridge.style.top = "56%";
+  bridge.style.top = "60%";
   bridge.style.left = `${LANE_LEFT_PCT}%`;
   bridge.style.width = `${LANE_RIGHT_PCT - LANE_LEFT_PCT}%`;
   bridge.style.height = "2px";
   bridge.style.transform = "translateY(-50%)";
 
-  /* Left segment: dot 1 to dot 2 */
   const leftSeg = document.createElement("div");
   leftSeg.style.position = "absolute";
   leftSeg.style.left = "0";
@@ -177,7 +213,6 @@ function buildBridge(concert) {
   leftSeg.style.width = `${INNER_LEFT}%`;
   leftSeg.style.background = "#000";
 
-  /* Right segment: dot 4 to dot 5 */
   const rightSeg = document.createElement("div");
   rightSeg.style.position = "absolute";
   rightSeg.style.left = `${INNER_RIGHT}%`;
@@ -189,51 +224,23 @@ function buildBridge(concert) {
   bridge.appendChild(leftSeg);
   bridge.appendChild(rightSeg);
 
-  /* Dot 1 at left lane endpoint */
-  const dot1 = document.createElement("div");
-  dot1.className = "entry-node";
-  dot1.style.position = "absolute";
-  dot1.style.left = "0";
-  dot1.style.top = "50%";
-  dot1.style.transform = "translate(-50%, -50%)";
-
-  /* Dot 2 at inner left */
-  const dot2 = document.createElement("div");
-  dot2.className = "entry-node";
-  dot2.style.position = "absolute";
-  dot2.style.left = `${INNER_LEFT}%`;
-  dot2.style.top = "50%";
-  dot2.style.transform = "translate(-50%, -50%)";
-
-  /* Dot 4 at inner right */
-  const dot4 = document.createElement("div");
-  dot4.className = "entry-node";
-  dot4.style.position = "absolute";
-  dot4.style.left = `${INNER_RIGHT}%`;
-  dot4.style.top = "50%";
-  dot4.style.transform = "translate(-50%, -50%)";
-
-  /* Dot 5 at right lane endpoint */
-  const dot5 = document.createElement("div");
-  dot5.className = "entry-node";
-  dot5.style.position = "absolute";
-  dot5.style.left = "100%";
-  dot5.style.top = "50%";
-  dot5.style.transform = "translate(-50%, -50%)";
+  const dot1 = makeBridgeDot("0%");
+  const dot2 = makeBridgeDot(`${INNER_LEFT}%`);
+  const dot4 = makeBridgeDot(`${INNER_RIGHT}%`);
+  const dot5 = makeBridgeDot("100%");
 
   bridge.appendChild(dot1);
   bridge.appendChild(dot2);
   bridge.appendChild(dot4);
   bridge.appendChild(dot5);
 
-  /* Label sits above the empty gap, never on top of a line */
   const content = document.createElement("div");
   content.className = "entry-content bridge-label";
   content.style.position = "absolute";
   content.style.left = "50%";
   content.style.top = "0";
   content.style.transform = "translateX(-50%)";
-  content.style.maxWidth = "720px";
+  content.style.maxWidth = "760px";
 
   const artist = document.createElement("div");
   artist.className = "entry-artist";
@@ -257,46 +264,84 @@ function buildBridge(concert) {
   return row;
 }
 
-/* Header fade */
-function updateHeaderVisibility() {
-  if (!entryHeader) return;
-
-  if (window.scrollY <= 0) {
-    entryHeader.style.opacity = "1";
-    entryHeader.style.transform = "translateY(0)";
-    entryHeader.style.pointerEvents = "auto";
-  } else {
-    entryHeader.style.opacity = "0";
-    entryHeader.style.transform = "translateY(-10px)";
-    entryHeader.style.pointerEvents = "none";
-  }
+function makeBridgeDot(leftValue) {
+  const d = document.createElement("div");
+  d.className = "entry-node";
+  d.style.position = "absolute";
+  d.style.left = leftValue;
+  d.style.top = "50%";
+  d.style.transform = "translate(-50%, -50%)";
+  return d;
 }
 
-entryHeader.style.transition = "opacity 250ms ease, transform 250ms ease";
-updateHeaderVisibility();
-window.addEventListener("scroll", updateHeaderVisibility, { passive: true });
+/* =========================================================
+   Year library insertion and scroll
+   ========================================================= */
 
-/* Fade in on scroll */
-const animated = Array.from(document.querySelectorAll(".timeline-entry, .timeline-year"));
-animated.forEach(el => {
-  el.style.opacity = "0";
-  el.style.transform = "translateY(10px)";
-  el.style.transition = "opacity 420ms ease, transform 420ms ease";
-});
+function insertYearLibrary({ startYear, endYear, yearsWithData }) {
+  const wrapper = document.getElementById("timeline-wrapper");
+  if (!wrapper) return;
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.style.opacity = "1";
-      entry.target.style.transform = "translateY(0)";
-      observer.unobserve(entry.target);
+  const library = document.createElement("section");
+  library.id = "year-library";
+
+  const inner = document.createElement("div");
+  inner.id = "year-library-inner";
+
+  const header = document.createElement("div");
+  header.className = "year-library-header";
+
+  const title = document.createElement("div");
+  title.className = "year-library-title";
+  title.textContent = "Library";
+
+  const hint = document.createElement("div");
+  hint.className = "year-library-hint";
+  hint.textContent = "Jump to a year";
+
+  header.appendChild(title);
+  header.appendChild(hint);
+
+  const grid = document.createElement("div");
+  grid.className = "year-grid";
+
+  const yearSet = new Set(yearsWithData);
+
+  for (let y = startYear; y <= endYear; y++) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "year-btn";
+    btn.textContent = String(y);
+
+    if (!yearSet.has(y)) {
+      btn.classList.add("disabled");
+      btn.disabled = true;
+    } else {
+      btn.addEventListener("click", () => {
+        const target = document.getElementById(`year-${y}`);
+        if (!target) return;
+
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      });
     }
-  });
-}, { threshold: 0.12 });
 
-animated.forEach(el => observer.observe(el));
+    grid.appendChild(btn);
+  }
 
-/* Playlist links */
+  inner.appendChild(header);
+  inner.appendChild(grid);
+  library.appendChild(inner);
+
+  wrapper.insertBefore(library, timeline.parentElement === wrapper ? timeline : wrapper.firstChild);
+}
+
+/* =========================================================
+   Playlist links
+   ========================================================= */
+
 function applyPlaylistLinks() {
   if (!window.playlistLinks) return;
 
@@ -318,7 +363,10 @@ function applyPlaylistLinks() {
 
 applyPlaylistLinks();
 
-/* Back to top */
+/* =========================================================
+   Back to top
+   ========================================================= */
+
 backToTopBtn.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
