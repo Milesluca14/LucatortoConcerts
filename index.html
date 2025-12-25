@@ -9,37 +9,16 @@
 
 <body>
 
-  <!-- ======================================================
-       ENTRY HEADER
-       Requirements:
-       - Title and subtitle up front
-       - Behind the title area: 6 image blocks you can swap
-       - Header will later fade out on scroll (handled in script.js)
-       ====================================================== -->
   <header id="entry-header">
 
-    <!-- 6 image blocks behind the title
-         How to replace:
-         - Put 6 image files in the repo root (same place as index.html)
-         - Name them exactly:
-             hero_01.jpg
-             hero_02.jpg
-             hero_03.jpg
-             hero_04.jpg
-             hero_05.jpg
-             hero_06.jpg
-         - Or change the file names in the inline styles below
+    <!--
+      ONE HERO PHOTO
+      How to replace:
+      1) Put a file in the repo root named: hero.jpg
+      2) Or change the filename below
     -->
-    <div id="hero-photo-grid" aria-hidden="true">
-      <div class="hero-photo" style="background-image: url('hero_01.jpg');"></div>
-      <div class="hero-photo" style="background-image: url('hero_02.jpg');"></div>
-      <div class="hero-photo" style="background-image: url('hero_03.jpg');"></div>
-      <div class="hero-photo" style="background-image: url('hero_04.jpg');"></div>
-      <div class="hero-photo" style="background-image: url('hero_05.jpg');"></div>
-      <div class="hero-photo" style="background-image: url('hero_06.jpg');"></div>
-    </div>
+    <div id="hero-photo" aria-hidden="true"></div>
 
-    <!-- Darken and soften the photo grid so the title always reads cleanly -->
     <div id="hero-overlay" aria-hidden="true"></div>
 
     <div id="hero-text">
@@ -51,29 +30,10 @@
 
   </header>
 
-
-  <!-- ======================================================
-       TIMELINE WRAPPER
-       Timeline content is injected by script.js using data.js
-       Key rule:
-       - Right lane is Dad concerts
-       - Left lane is Miles concerts
-       - Center has nothing except bridges for shared dates
-       ====================================================== -->
   <main id="timeline-wrapper">
-    <section id="timeline" aria-label="Concert timeline">
-      <!-- Filled by script.js -->
-    </section>
+    <section id="timeline" aria-label="Concert timeline"></section>
   </main>
 
-
-  <!-- ======================================================
-       ENDING
-       Requirements:
-       - No per entry YouTube links on the timeline
-       - Instead: three playlist links at the bottom
-       - Also include "More shows to come" and the Christmas message
-       ====================================================== -->
   <footer id="timeline-ending">
 
     <p class="more-shows">More shows to come</p>
@@ -83,11 +43,6 @@
       Love, Miles.
     </p>
 
-    <!-- Playlist section
-         How to replace:
-         - Paste your playlist URLs into the href values below
-         - Leave the text exactly as written
-    -->
     <section id="playlist-links" aria-label="YouTube playlists">
       <h2 class="playlist-title">Playlists</h2>
 
@@ -112,8 +67,6 @@
 
   </footer>
 
-
-  <!-- Load order matters: data first, then script -->
   <script src="data.js"></script>
   <script src="script.js"></script>
 
